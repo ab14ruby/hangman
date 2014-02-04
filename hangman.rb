@@ -1,89 +1,226 @@
-#!/usr/bin/env ruby
-#-------------------------------------------------------------
-#Hangman Projesi Part 1 By Candan Benturk Version 0.0.1 Beta--
-#-------------------------------------------------------------
-#DIKKAT>>> hangman.rb, hangman.txt ve module_screen.rb files--
-#----------ayni dosya icinde olmalidirlar.--------------------
-#-------------------------------------------------------------
 
-#Kelimeyi Random Sec
-@r = rand(11)
-#puts " Testing random number generator kelimeler icin  #@r"
+class Hangman
 
-#Kelimeyi dosyadan okuma methodu
-#hangman text dosyasindaki satirlari lines adli diziye aktariyoruz
-lines = IO.readlines("hangman.txt")
+def self.draw(x)
+  hangman = [" O","/","|","\\","/ ","\\"]
+  if x == 0
+    puts hangman[0]
+  elsif x == 1
+    puts hangman[0]
+    print hangman[1]
+  elsif x==2
+    puts hangman[0]
+    print hangman[1]
+    print hangman[2]
+  elsif x==3
+    puts hangman[0]
+    print hangman[1]
+    print hangman[2]
+    print hangman[3]
+  elsif x==4
 
-#Test line to verify dizin dogru geldi.
-#puts lines
-
-# kelimemizi secelim
-kelime = lines[@r].chomp.to_s
-
-#MODULE Egzersizi yapalim
-# Simdi daha onceden yazdigim clear screen modulumuzu yukliyelim
-
-$LOAD_PATH << '.'
-
-require 'module_screen.rb'
-
-Screen.clear
-
-#Module sonu
-
-
-#---------------------------------------------------------------------------------------
-#-------------------------Candan Benturk Ilk Section finished---------------------------
-#-------------------Asagida bazi fikirler degisik web sitelerinden----------------------
-#---------------------------------------------------------------------------------------
-
-
-#test yeni secilen kelimeyi test edelim
-puts kelime
-
-#Kelime Gizleme Methodumuz get_display() METHODu ile
-def get_display(kelime)
-    # Secilen kelimeye gore gizleme methodu icin
-    # - tre isareti kullaniyoruz
-    disp=''
-    for i in 0...kelime.length
-        disp=disp + '-'
-    end
-    return disp
-end
-puts
-puts get_display(kelime)
-
-
-
-#HARFIN KELIMENIN ICINDE OLDUGUNU BULALIM
-
-def is_letter_in_word(kelime,harf)
-    # harfin kelimenin icinde olup olmadigina bakalim.
+    puts hangman[0]
+    print hangman[1]
+    print hangman[2]
+    puts hangman[3]
+    print hangman[4]
+  elsif x==5
     
+    puts hangman[0]
+    print hangman[1]
+    print hangman[2]
+    puts hangman[3]
+    print hangman[4]
+    print hangman[5]
+    print hangman[6]
+
+  end
+
 end
 
-#UPDATE Oyun EKRANINI SAYET HARF ESLESMESI VAR ISE
-def get_letter(word,letter,display)
-    # BU GET_LETTER method'u hangman tarafindan cagriliyor eger yukardaki  is_letter_in_word methodu
-    # geriye  TRUE Gonderiyor is
-    # Parametereleri: Dogru tahmin edilen harf ile, gizli kelime,
-    # ve Gizli Kelimenin su andaki  Display Durumu.
+
+
+
+wrong = -1
+puts "Choose one language to start"
+puts "1-) English"
+puts "2-) Turkish"
+choice = gets.chomp
+if(choice == "1")
+
+  dictionary = File.open('dictionary.txt')
+  dictionary_array = dictionary.readlines
+  dictionary_array.shuffle!
+elsif (choice =="2")
+  dictionary = File.open('dictionary.txt')
+  dictionary_array = dictionary.readlines
+  dictionary_array.shuffle!
+end
+
+puts "Type \"start\" to begin a new game\n"
+turn = 0
+rematch = nil
+
+print "> "
+user_word = gets.chomp.downcase.strip
+until user_word == "start"
+print "> "
+user_word = gets.chomp.downcase.strip
+end
+
+until rematch == "quit"
+
+  # yeni bir kelimeyi shuffle ile rastgele alıyoruz sonrasında bu kelimenin harflerinden kelimeye uygun bir array cıkartıyoruz
+  dictionary_array.shuffle!
+  word = dictionary_array[0]
+  word_array = word.chars.to_a
+  letters_remaining = dictionary_array[0].chars.to_a
+  # \n i silmek icin
+  word_array.delete_at(word_array.length)
+  letters_remaining.delete_at(letters_remaining.length-1)
+
+
+
+# alfabeyi tanımladık
+alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", 
+"L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+lives = 6 
+  
+  # yeniden denemk isterse veya ilk oyunsa
+  if rematch == "new" || turn == 0
+  word_array.each do |x|
+    print "_ "
+  end
+  puts "\n\n"
+  puts "Lives Remaining: #{lives}"
+  puts "Letters Remaining: "
+
+  alphabet.each do |x|
+    print "#{x} "
+  end
+  puts "\n\n"
+
+  puts "Guess a letter: "
+  print "> "
+  guess = gets.chomp.upcase.strip
+
+  until alphabet.include?(guess) == true
+    puts "INVALID ENTRY"
+    puts "Please guess from the available letters"
+    print "> "
+    guess = gets.chomp.upcase.strip
+  end
+
+  # harf secmek ıcın hakkı yyoksa veya harf kalmadıysa bu donguyu kıracagız
+  until lives == 0 || letters_remaining == []
+  
+    if word_array.include?(guess.downcase) == true
     
+      if wrong >= 0
+        draw(wrong)
+      end
+
+      puts "\n\n"
+      alphabet.delete(guess)  
+      letters_remaining.delete(guess.downcase)
+    
+      if letters_remaining == []
+        break
+      end
+  
+      word_array.each do |x|
+        if alphabet.include?(x.upcase) == true
+          print "_ "
+        else 
+          print "#{x.upcase} "
+        end
+      end
+    
+      puts "\n\n"
+      puts "Lives Remaining: #{lives}"
+      puts "Letters Remaining: "
+
+      alphabet.each do |x|
+        print "#{x} "
+      end
+      puts "\n\n"
+  
+      puts "Guess a letter: "
+      print "> "
+      guess = gets.chomp.upcase.strip
+   
+      until alphabet.include?(guess) == true
+         puts "INVALID ENTRY"
+         puts "Please guess from the available letters"
+         print "> "
+         guess = gets.chomp.upcase.strip
+      end
+  
+    elsif lives > 1
+
+      wrong += 1
+      if wrong >= 0
+        draw(wrong)
+      end
+      lives -= 1
+      puts "\nWRONG!"
+      alphabet.delete(guess)
+  
+      word_array.each do |x|
+        if alphabet.include?(x.upcase) == true
+          print "_ "
+        else 
+          print "#{x.upcase} "
+        end
+      end
+    
+      puts "\n\n"
+      puts "Lives Remaining: #{lives}"
+      puts "Letters Remaining: "
+
+      alphabet.each do |x|
+        print "#{x} "
+      end
+      puts "\n\n"
+  
+      puts "Guess a letter: "
+      print "> "
+      guess = gets.chomp.upcase.strip
+   
+      until alphabet.include?(guess) == true
+         puts "INVALID ENTRY"
+         puts "Please guess from the available letters"
+         print "> "
+         guess = gets.chomp.upcase.strip
+      end
+
+
+    else 
+      lives -= 1
+      wrong +=1
+      draw(wrong)
+      puts "YOU LOSE!\n"
+      puts "The word was #{word_array.to_s.upcase}"
+    end  
+  
+  end 
+
+  if letters_remaining == []
+    puts "CONGRATULATIONS! You got the word #{word_array.to_s.upcase}" 
+  end   
+
+  turn += 1
+  puts "Type \"new\" to play again, type \"quit\" to exit"
+  print "> "
+  rematch = gets.chomp.downcase.strip
+  else
+  puts "Please type either \"new\" OR \"quit\""
+  
+  end
+
 end
 
-#    *RETURN 'kazandi' sayet oyun bittiyse
-#    *RETURN 'kaybetti' sayet oyunu kaybettiyse
-#    *RETURN 'devam' oyun bitmediyse
-
-
-def is_finished(word, display, left)
-    # Bu method her zaman bor harfin dogru tahmin edildigi zaman cagriliyor. 
-    # Bu methodun ana gorevi oyunun kazanildiginin, kaybedildiginin veya devam 
-    # ettiginin hesaplanmasi
-    # input parametreleri gizli kelime (kelime), the
-    # oyunun su anindanki Graphic Display'i  (display), Geriye kalan oyun denemeleri (left)
-    # Return "kazandi " eger kelime basari ile kazanildiysa,
-    # Return "lose"  eger oyun deneme haklari bittiyse  ve kaybedildiyse
-    # Return "continue" eger halen oyun deneme haklari var ise.
 end
+
+
+
