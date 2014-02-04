@@ -1,6 +1,10 @@
 
 class Hangman
 
+$LOAD_PATH << '.'
+require 'module_screen.rb'
+
+
 def self.draw(x)
   hangman = [" O","/","|","\\","/ ","\\"]
   if x == 0
@@ -38,21 +42,54 @@ def self.draw(x)
 
 end
 
+def self.invalid(a,g)
+
+until a.include?(g) == true
+
+    puts "INVALID ENTRY"
+    puts "Please guess from the available letters"
+    print "> "
+    g = gets.chomp.upcase.strip
+  end
+
+end
 
 
+
+def self.guessmethod()
+  puts "Guess a letter: "
+  print "> "
+  g = gets.chomp.upcase.strip
+return g
+end
+
+def self.showLivesandAlphabet(alp,lives)
+puts "\n\n"
+
+  puts "Lives Remaining: #{lives}"
+  puts "Letters Remaining: "
+
+  alp.each do |x|
+    print "#{x} "
+  end
+  puts "\n\n"
+end
 
 wrong = -1
-puts "Choose one language to start"
+puts "Choose one language to start "
 puts "1-) English"
 puts "2-) Turkish"
 choice = gets.chomp
+
+
 if(choice == "1")
 
   dictionary = File.open('dictionary.txt')
   dictionary_array = dictionary.readlines
   dictionary_array.shuffle!
+
 elsif (choice =="2")
-  dictionary = File.open('dictionary.txt')
+  dictionary = File.open('dictionary_tr.txt')
   dictionary_array = dictionary.readlines
   dictionary_array.shuffle!
 end
@@ -80,7 +117,6 @@ until rematch == "quit"
   letters_remaining.delete_at(letters_remaining.length-1)
 
 
-
 # alfabeyi tanımladık
 alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", 
 "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
@@ -91,29 +127,16 @@ lives = 6
   word_array.each do |x|
     print "_ "
   end
-  puts "\n\n"
-  puts "Lives Remaining: #{lives}"
-  puts "Letters Remaining: "
 
-  alphabet.each do |x|
-    print "#{x} "
-  end
-  puts "\n\n"
+  showLivesandAlphabet(alphabet,lives)
 
-  puts "Guess a letter: "
-  print "> "
-  guess = gets.chomp.upcase.strip
+    guess=guessmethod()
+  
 
-  until alphabet.include?(guess) == true
-    puts "INVALID ENTRY"
-    puts "Please guess from the available letters"
-    print "> "
-    guess = gets.chomp.upcase.strip
-  end
 
   # harf secmek ıcın hakkı yyoksa veya harf kalmadıysa bu donguyu kıracagız
   until lives == 0 || letters_remaining == []
-  
+  Screen.clear
     if word_array.include?(guess.downcase) == true
     
       if wrong >= 0
@@ -136,25 +159,15 @@ lives = 6
         end
       end
     
-      puts "\n\n"
-      puts "Lives Remaining: #{lives}"
-      puts "Letters Remaining: "
+      showLivesandAlphabet(alphabet,lives)
 
-      alphabet.each do |x|
-        print "#{x} "
-      end
       puts "\n\n"
-  
-      puts "Guess a letter: "
-      print "> "
-      guess = gets.chomp.upcase.strip
+
+      guess = guessmethod
    
-      until alphabet.include?(guess) == true
-         puts "INVALID ENTRY"
-         puts "Please guess from the available letters"
-         print "> "
-         guess = gets.chomp.upcase.strip
-      end
+    
+         invalid(alphabet,guess)
+
   
     elsif lives > 1
 
@@ -164,7 +177,7 @@ lives = 6
       end
       lives -= 1
       puts "\nWRONG!"
-      alphabet.delete(guess)
+          alphabet.delete(guess)
   
       word_array.each do |x|
         if alphabet.include?(x.upcase) == true
@@ -174,25 +187,13 @@ lives = 6
         end
       end
     
-      puts "\n\n"
-      puts "Lives Remaining: #{lives}"
-      puts "Letters Remaining: "
+      showLivesandAlphabet(alphabet,lives)
 
-      alphabet.each do |x|
-        print "#{x} "
-      end
       puts "\n\n"
   
-      puts "Guess a letter: "
-      print "> "
-      guess = gets.chomp.upcase.strip
-   
-      until alphabet.include?(guess) == true
-         puts "INVALID ENTRY"
-         puts "Please guess from the available letters"
-         print "> "
-         guess = gets.chomp.upcase.strip
-      end
+       guess = guessmethod
+      
+        invalid(alphabet,guess)
 
 
     else 
@@ -216,11 +217,10 @@ lives = 6
   else
   puts "Please type either \"new\" OR \"quit\""
   
+      end
+
   end
-
-end
-
-end
-
-
+  end
+  
+app = Hangman.new
 
